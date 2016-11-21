@@ -16,24 +16,26 @@ public class Main
 
     public static void main(String[] args) throws InterruptedException, IOException
     {
+
+        setValues(file_path);       //waiting_procs ya estan arreglados por el tiempo en el que deben salir
+        drawGantt(waiting_procs);   //Los dibujamos
+
         final BlockingQueue<Proc> priorityBlockingQueue_readyProcesses = new PriorityBlockingQueue<>(waiting_procs.size(),(Proc p1, Proc p2)-> (int)(
                 (p1.getPriority()!=p2.getPriority())
                         ?(p1.getPriority()-p2.getPriority())
                         :(p1.getDuration()-p2.getDuration()))); //Comparador
 
-        setValues(file_path);       //waiting_procs ya estan arreglados por el tiempo en el que deben salir
-        drawGantt(waiting_procs);   //Los dibujamos
-
         Thread Scheduler_Priority = new Thread(new PriorityScheduler(waiting_procs.size(),priorityBlockingQueue_readyProcesses));
         Thread proc_launcher = new Thread(new WaitingToReadyProducer(waiting_procs,priorityBlockingQueue_readyProcesses));
         Thread rs = new Thread(new ReportsServer(PORT));
-        Thread rc = new Thread(new ReportsClient(HOST,PORT,"HOLA MUNDO"));
 
         rs.start();                 //Levantamos el servidor que imprime resultados
         Scheduler_Priority.start(); //Levantamos el Planificador de prioridades
         proc_launcher.start();      //Levantamos el hilo que dispara procesos
 
-        rc.start(); //Asegurarnos que ya acabo el planificador y que ya esta corriendo el server para reportar datos
+        String result = "HOLA MUNDO"; //Llenar esto con los resultados solicitados
+
+        (new Thread(new ReportsClient(HOST,PORT,result))).start(); //Mandarle resultado al server, el los imprimira
     }
 
     public static void drawGantt(List<Proc> p)
@@ -44,17 +46,16 @@ public class Main
         for (int i = 0; i < p.size() ; i++)
         {
             line+=p.get(i).getName()+" -> "+p.get(i).getPriority()+"\t|";
-            for (int j = 0; j < p.get(i).getArrival_time(); j++)
+            for (double j = 0; j < p.get(i).getArrival_time(); j+=0.5)
             {
-                line += "  ";
+                line += " ";
             }
-            for (int j = 0; j < p.get(i).getDuration(); j++)
+            for (double j = 0; j < p.get(i).getDuration(); j+=0.5)
             {
-                line += "--";
+                line += "-";
             }
             line+=">\n";
         }
-
         System.out.print(line);
     }
 
@@ -85,7 +86,7 @@ public class Main
             e.printStackTrace();
             return false;
         }
-        Collections.sort(waiting_procs,(Proc o1, Proc o2)-> (int)(o1.getArrival_time() - o2.getArrival_time()));
+        Collections.sort(waiting_procs,(Proc o1, Proc o2)-> (int)((o1.getArrival_time()!=o2.getArrival_time()?o1.getArrival_time()-o2.getArrival_time():o1.getPriority()-o2.getPriority())));
         return true;
     }
 
