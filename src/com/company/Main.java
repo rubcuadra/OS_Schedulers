@@ -10,7 +10,8 @@ public class Main
 {
     private static final int PORT = 4444; //EN el que se comunica cliente servidor para imprimir datos
     private static final String HOST = "127.0.0.1"; //localhost
-    private static final String file_path="src/com/company/data.txt";
+    private static final String file_path="src/com/company/procesos.txt";
+    private static final String second_file_path="src/com/company/procesos1-temp.txt";
     private static List<Proc> waiting_procs;
     private static int quantum;
 
@@ -42,7 +43,6 @@ public class Main
     {
         //Cada segundo equivale a 2 "_" y a 2 " "
         String line = "Proceso# -> Prioridad:\n";
-
         for (int i = 0; i < p.size() ; i++)
         {
             line+=p.get(i).getName()+" -> "+p.get(i).getPriority()+"\t|";
@@ -77,7 +77,7 @@ public class Main
                 }
                 else
                 {
-                    String[] current_line = scanner.nextLine().split(",");
+                    String[] current_line = scanner.nextLine().split(" ");
                     waiting_procs.add(new Proc(current_line));
                 }
             }

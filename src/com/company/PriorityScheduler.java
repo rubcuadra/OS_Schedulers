@@ -29,7 +29,6 @@ public class PriorityScheduler implements Runnable
             {
                 if (running==null && top_waiting==null)
                 {
-                    Thread.sleep(250);
                     continue;
                 } //No ha caido nada
                 if (running == null)  //Caso base, volver running el top
@@ -41,14 +40,14 @@ public class PriorityScheduler implements Runnable
                 {
                     if (running.getPriority() > top_waiting.getPriority()) //Si el actual tiene mayor numero (menor prioridad) cambiarlos
                     {
-                        System.out.println("Movido "+running+" a cola");
+                        System.out.println("Movido "+running.getName()+" a cola");
                         temp = running;
                         running = readyQueue.poll();
                         readyQueue.put(temp);
                     } else if (running.getPriority() == top_waiting.getPriority() && running.getDuration() > top_waiting.getDuration())
                     {
                         //Si tienen misma prioridad y el actual tardara mas, cambiarlos
-                        System.out.println("Movido "+running+" a cola");
+                        System.out.println("Movido "+running.getName()+" a cola");
                         temp = running;
                         running = readyQueue.poll();
                         readyQueue.put(temp);
@@ -57,10 +56,11 @@ public class PriorityScheduler implements Runnable
                 //Procesar running, restar duracion y dar ciclo; si la duracion llega <0 volver null running
                 System.out.println("Ejecutando "+running);
                 running.setDuration(running.getDuration() - processing_time);
+                Thread.sleep((long) (processing_time*1000));
                 if (running.getDuration() < 0 )
                 {
                     --totalThreads;
-                    System.out.println("Terminado de procesar "+running.toString());
+                    System.out.println("Terminado de procesar "+running.getName());
                     running = null;
                 }
             } catch (InterruptedException e)

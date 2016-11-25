@@ -31,7 +31,6 @@ public class WaitingToReadyProducer implements Runnable
                     System.out.println("Lanzando proceso "+waitingProcs.get(0) );
                     readyQueue.put(waitingProcs.remove(0));
                 }
-                Thread.sleep(250); //No hay que saturarlos
             }
             catch (InterruptedException e)
             {
