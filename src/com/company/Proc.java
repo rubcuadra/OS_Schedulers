@@ -6,7 +6,8 @@ package com.company;
 public class Proc implements Comparable<Proc>
 {
     private String name;
-    private double arrival_time,priority,duration;
+
+    private double arrival_time,priority,duration,finish_time,length;
 
     Proc(String[] file_line)
     {
@@ -14,6 +15,7 @@ public class Proc implements Comparable<Proc>
         arrival_time = Double.parseDouble(file_line[1]);
         duration = Double.parseDouble(file_line[2]);
         priority = Double.parseDouble(file_line[3]);
+        length = duration;
     }
     @Override
     public String toString()
@@ -53,9 +55,19 @@ public class Proc implements Comparable<Proc>
         this.duration = duration;
     }
 
+
+
     @Override
     public int compareTo(Proc o)
     {
         return (int)(this.arrival_time-o.arrival_time);
+    }
+
+    public double getFinish_time() {return finish_time;}
+
+    public void setFinish_time(double finish_time) {this.finish_time = finish_time;}
+
+    public double getLength() {
+        return length;
     }
 }

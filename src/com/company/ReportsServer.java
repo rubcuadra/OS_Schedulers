@@ -46,7 +46,7 @@ public class ReportsServer implements Runnable
 
             while ((inputLine = in.readLine()) != null)
             {
-                System.out.println (inputLine);
+                System.out.println (inputLine.replace("|","\n"));
                 out.println(inputLine);
                 if (true || inputLine.equals("Bye.")) break;
             }

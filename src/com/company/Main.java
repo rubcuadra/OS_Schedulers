@@ -25,8 +25,8 @@ public class Main
                 (p1.getPriority()!=p2.getPriority())
                         ?(p1.getPriority()-p2.getPriority())
                         :(p1.getDuration()-p2.getDuration()))); //Comparador
-
-        Thread Scheduler_Priority = new Thread(new PriorityScheduler(waiting_procs.size(),priorityBlockingQueue_readyProcesses));
+        PriorityScheduler prSc = new PriorityScheduler(waiting_procs.size(),priorityBlockingQueue_readyProcesses);
+        Thread Scheduler_Priority = new Thread(prSc);
         Thread proc_launcher = new Thread(new WaitingToReadyProducer(waiting_procs,priorityBlockingQueue_readyProcesses));
         Thread rs = new Thread(new ReportsServer(PORT));
 
@@ -34,8 +34,20 @@ public class Main
         Scheduler_Priority.start(); //Levantamos el Planificador de prioridades
         proc_launcher.start();      //Levantamos el hilo que dispara procesos
 
-        String result = "HOLA MUNDO"; //Llenar esto con los resultados solicitados
+        while ( prSc.getPendingThreads()>0)
+        {
+            Thread.sleep(1000);
+        }
 
+        String result = "";
+        double duracion = 0.0;
+
+        for (Proc p:prSc.finishedQueue)
+        {
+            duracion+=p.getFinish_time()-p.getArrival_time();
+            result += p.getName()+" Tardo: "+duracion+"\tEn espera "+(duracion-p.getLength())+"|";
+        }
+        result+="\n";
         (new Thread(new ReportsClient(HOST,PORT,result))).start(); //Mandarle resultado al server, el los imprimira
     }
 

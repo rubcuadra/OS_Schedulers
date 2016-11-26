@@ -1,5 +1,7 @@
 package com.company;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -10,12 +12,19 @@ public class PriorityScheduler implements Runnable
 
     private static double processing_time=0.5;
     protected BlockingQueue<Proc> readyQueue;
-    private int totalThreads;
+    public Queue<Proc> finishedQueue;
+    private int pendingThreads;
 
     public PriorityScheduler(int totalThreads,BlockingQueue<Proc> queue)
     {
-        this.totalThreads=totalThreads;
+        this.pendingThreads = totalThreads;
         this.readyQueue = queue;
+        this.finishedQueue= new LinkedList<>();
+    }
+
+    public int getPendingThreads()
+    {
+        return pendingThreads;
     }
 
 
@@ -23,12 +32,16 @@ public class PriorityScheduler implements Runnable
     public void run()
     {
         Proc top_waiting,temp; Proc running=null;
-        while ( (top_waiting=readyQueue.peek())!=null || totalThreads>0)
+        double current_time = 0; //In seconds
+        while ( (top_waiting=readyQueue.peek())!=null || pendingThreads >0)
         {
             try
             {
+                //System.out.println("Current time "+current_time);
                 if (running==null && top_waiting==null)
                 {
+                    Thread.sleep((long) (processing_time*1000));
+                    current_time+=processing_time;
                     continue;
                 } //No ha caido nada
                 if (running == null)  //Caso base, volver running el top
@@ -57,10 +70,13 @@ public class PriorityScheduler implements Runnable
                 System.out.println("Ejecutando "+running);
                 running.setDuration(running.getDuration() - processing_time);
                 Thread.sleep((long) (processing_time*1000));
+                current_time+=processing_time;
                 if (running.getDuration() < 0 )
                 {
-                    --totalThreads;
+                    --pendingThreads;
                     System.out.println("Terminado de procesar "+running.getName());
+                    running.setFinish_time(current_time);
+                    finishedQueue.add(running);
                     running = null;
                 }
             } catch (InterruptedException e)
