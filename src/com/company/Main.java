@@ -25,8 +25,9 @@ public class Main
                 (p1.getPriority()!=p2.getPriority())
                         ?(p1.getPriority()-p2.getPriority())
                         :(p1.getDuration()-p2.getDuration()))); //Comparador
+
         PriorityScheduler prSc = new PriorityScheduler(waiting_procs.size(),priorityBlockingQueue_readyProcesses);
-        Thread Scheduler_Priority = new Thread(prSc);
+        Thread Scheduler_Priority = new Thread(prSc); //Agregar round robin
         Thread proc_launcher = new Thread(new WaitingToReadyProducer(waiting_procs,priorityBlockingQueue_readyProcesses));
         Thread rs = new Thread(new ReportsServer(PORT));
 
@@ -44,14 +45,13 @@ public class Main
         double globalWaiting = 0.0;
         int totalProcs = 0;
 
-        for (Proc p:prSc.finishedQueue)
+        for (Proc p:prSc.finishedQueue) //Cambiar la cubeta en caso de ser el otro
         {
             duracion+=p.getFinish_time()-p.getArrival_time();
             result += p.getName()+" Tardo: "+duracion+"\tEn espera "+(duracion-p.getLength())+"|";
             globalWaiting+= duracion-p.getLength();
             totalProcs++;
         }
-
         result+="Duracion promedio "+globalWaiting/totalProcs+"s\n";
         (new Thread(new ReportsClient(HOST,PORT,result))).start(); //Mandarle resultado al server, el los imprimira
     }
