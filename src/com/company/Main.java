@@ -41,13 +41,18 @@ public class Main
 
         String result = "";
         double duracion = 0.0;
+        double globalWaiting = 0.0;
+        int totalProcs = 0;
 
         for (Proc p:prSc.finishedQueue)
         {
             duracion+=p.getFinish_time()-p.getArrival_time();
             result += p.getName()+" Tardo: "+duracion+"\tEn espera "+(duracion-p.getLength())+"|";
+            globalWaiting+= duracion-p.getLength();
+            totalProcs++;
         }
-        result+="\n";
+
+        result+="Duracion promedio "+globalWaiting/totalProcs+"s\n";
         (new Thread(new ReportsClient(HOST,PORT,result))).start(); //Mandarle resultado al server, el los imprimira
     }
 
