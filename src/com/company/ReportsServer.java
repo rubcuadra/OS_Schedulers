@@ -26,7 +26,7 @@ public class ReportsServer implements Runnable
         }
 
         Socket clientSocket = null;
-        System.out.println ("Waiting for connection.....");
+        System.out.println ("Report server up");
 
         try
         {

@@ -33,7 +33,7 @@ public abstract class Scheduler implements Runnable
         for (Proc p:finishedQueue )
         {
             duracion+=p.getFinish_time()-p.getArrival_time();
-            result += p.getName()+" Tardo: "+(int)duracion+"\tEn espera "+(int)(duracion-p.getLength())+"|"; //Se agrega un | por que un \n cortaba comunicacion cliente-servidor
+            result += p.getName()+" Tardo: "+duracion+"\tEn espera "+(duracion-p.getLength())+"|"; //Se agrega un | por que un \n cortaba comunicacion cliente-servidor
             globalWaiting+= duracion-p.getLength();
         }
         result+="Duracion promedio "+globalWaiting/finishedQueue.size()+"s\n";

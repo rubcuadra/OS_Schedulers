@@ -6,7 +6,7 @@ package com.company;
 public class Proc implements Comparable<Proc>
 {
     private String name;
-
+    //Agregar una timestamp de cuando se realiza un context switch?
     private double arrival_time,priority,duration,finish_time,length;
 
     Proc(String[] file_line)

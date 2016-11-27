@@ -54,10 +54,9 @@ public class Main
 
         while (  scheduler.hasPendingThreads() )      //Mientras no se acaben los procesos, esperar
         {Thread.sleep((long) sleeps);}                         //Aqui ya podemos enviar un reporte
-
-        String report = scheduler.getReport();         //Obtenemos los resultados
+        
         //Este hilo es el cliente, lanza el reporte al servidor, el cual lo imprime
-        (new Thread(new ReportsClient(HOST,PORT,report))).start();
+        (new Thread(new ReportsClient(HOST,PORT,scheduler.getReport()))).start();
     }
 
     public static void drawGantt(List<Proc> p)
