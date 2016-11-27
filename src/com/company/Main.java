@@ -41,7 +41,7 @@ public class Main
                 scheduler = new RoundRobinScheduler(quantum, waiting_procs.size(),readyProcesses);
                 break;
         }
-        
+
         //Con esto instanciamos el hilo que servira los procesos
         Thread scheduler_thread = new Thread(scheduler);
         //Hilo que levantara procesos
