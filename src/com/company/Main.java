@@ -22,7 +22,7 @@ public class Main
     public static void main(String[] args) throws InterruptedException, IOException
     {
 
-        int choice = 0;         //0 = Prioridad; 1 = Round Robin
+        int choice = 1;         //0 = Prioridad; 1 = Round Robin
         Scheduler scheduler;    //Aqui guardaremos el objeto scheduler
 
         final BlockingQueue<Proc> readyProcesses; //Prioridad ocupa comparador especial; Robin solo un FIFO
@@ -35,8 +35,7 @@ public class Main
                 readyProcesses =  new PriorityBlockingQueue<>(waiting_procs.size(),(Proc p1, Proc p2)-> (int)((p1.getPriority()!=p2.getPriority()) ?(p1.getPriority()-p2.getPriority()) :(p1.getDuration()-p2.getDuration())));
                 scheduler = new PriorityScheduler(waiting_procs.size(),readyProcesses);
                 break;
-
-            default: //Aun no funciona, Round Robin
+            default:
                 readyProcesses = new LinkedBlockingQueue<>(); //Una cubeta normal, la prioridad no se requiere
                 scheduler = new RoundRobinScheduler(quantum, waiting_procs.size(),readyProcesses);
                 break;

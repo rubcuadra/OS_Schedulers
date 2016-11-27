@@ -32,7 +32,7 @@ public class WaitingToReadyProducer implements Runnable
 
                 if (waitingProcs.get(0).getArrival_time()*time_multiplier <= time_past_in_mili) //Si el tiempo de llegada es menor o igual al tiempo actual, lanzarlo
                 {
-                    System.out.println("Lanzando proceso "+waitingProcs.get(0) );
+                    System.out.println("|-> "+waitingProcs.get(0) );
                     readyQueue.put(waitingProcs.remove(0));
                 }
             }

@@ -39,28 +39,28 @@ public class PriorityScheduler extends Scheduler
                 {
                     if (running.getPriority() > top_waiting.getPriority()) //Si el actual tiene mayor numero (menor prioridad) cambiarlos
                     {
-                        System.out.println("Movido "+running.getName()+" a cola");
+                        System.out.println("\t<> "+running.getName()+" a cola");
                         temp = running;
                         running = readyQueue.poll();
                         readyQueue.put(temp);
                     } else if (running.getPriority() == top_waiting.getPriority() && running.getDuration() > top_waiting.getDuration())
                     {
                         //Si tienen misma prioridad y el actual tardara mas, cambiarlos
-                        System.out.println("Movido "+running.getName()+" a cola");
+                        System.out.println("\t<> "+running.getName()+" a cola");
                         temp = running;
                         running = readyQueue.poll();
                         readyQueue.put(temp);
                     }
                 }
                 //Procesar running, restar duracion y dar ciclo; si la duracion llega <0 volver null running
-                System.out.println("Ejecutando "+running);
+                System.out.println("\t... "+running);
                 running.setDuration(running.getDuration() - delta);
                 Thread.sleep((long) (sleeps));
                 current_time+= delta;
-                if (running.getDuration() <= 0 )
+                if (running.getDuration() <= 0 ) //Si ya lo acabamos de procesar
                 {
                     --pendingThreads;
-                    System.out.println("Terminado de procesar "+running.getName());
+                    System.out.println("\tX "+running.getName());
                     running.setFinish_time(current_time);
                     running.setDuration(0);
                     finishedQueue.add(running);
