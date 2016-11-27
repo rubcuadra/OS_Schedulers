@@ -19,15 +19,16 @@ public class PriorityScheduler extends Scheduler
     public void run()
     {
         Proc top_waiting,temp; Proc running=null;
-        double current_time = 0; //In seconds
+        double current_time = 0;
+
         while ( (top_waiting=readyQueue.peek())!=null || pendingThreads >0)
         {
             try
             {
                 if (running==null && top_waiting==null)
                 {
-                    Thread.sleep((long) (processing_time*1000));
-                    current_time+=processing_time;
+                    Thread.sleep((long) (sleeps));
+                    current_time+=delta;
                     continue;
                 } //No ha caido nada
                 if (running == null)  //Caso base, volver running el top
@@ -53,9 +54,9 @@ public class PriorityScheduler extends Scheduler
                 }
                 //Procesar running, restar duracion y dar ciclo; si la duracion llega <0 volver null running
                 System.out.println("Ejecutando "+running);
-                running.setDuration(running.getDuration() - processing_time);
-                Thread.sleep((long) (processing_time*1000));
-                current_time+=processing_time;
+                running.setDuration(running.getDuration() - delta);
+                Thread.sleep((long) (sleeps));
+                current_time+= delta;
                 if (running.getDuration() <= 0 )
                 {
                     --pendingThreads;

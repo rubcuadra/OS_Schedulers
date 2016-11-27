@@ -29,10 +29,9 @@ public class RoundRobinScheduler extends Scheduler
         {
             try
             {
+                
 
-                Thread.sleep((long) (processing_time*1000));
-                current_time+=processing_time;
-                System.out.println("AUN NO SE IMPLEMENTA ROUND ROBIN");
+                Thread.sleep((long) (sleeps));
                 break;
 
             } catch (InterruptedException e)

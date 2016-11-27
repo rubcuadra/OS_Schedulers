@@ -20,7 +20,7 @@ public class Proc implements Comparable<Proc>
     @Override
     public String toString()
     {
-        return name + " Remaining:"+duration+"s\tP:"+priority+"\t\t Arrived: "+arrival_time;
+        return name + " Remaining:"+duration+"\tP:"+priority+"\t\t Arrived: "+arrival_time;
     }
 
     public String getName() {

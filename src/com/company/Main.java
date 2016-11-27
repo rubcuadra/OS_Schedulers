@@ -7,7 +7,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
-import static com.company.Scheduler.processing_time;
+import static com.company.Scheduler.*;
 
 public class Main
 {
@@ -54,7 +54,7 @@ public class Main
         proc_launcher_thread.start();                 //Levantamos el hilo que dispara procesos
 
         while (  scheduler.hasPendingThreads() )      //Mientras no se acaben los procesos, esperar
-        {Thread.sleep(1000);}                         //Aqui ya podemos enviar un reporte
+        {Thread.sleep((long) sleeps);}                         //Aqui ya podemos enviar un reporte
 
         String report = scheduler.getReport();         //Obtenemos los resultados
         //Este hilo es el cliente, lanza el reporte al servidor, el cual lo imprime
@@ -63,13 +63,14 @@ public class Main
 
     public static void drawGantt(List<Proc> p)
     {
+        double time_lapse = 0.5; //Cada cuanto pintar, esto se le resta al duration del proc
         //Cada segundo equivale a 2 "_" y a 2 " "
         String line = "Proceso# -> Prioridad:\n";
         for (int i = 0; i < p.size() ; i++)
         {
             line+=p.get(i).getName()+" -> "+p.get(i).getPriority()+"\t|";
-            for (double j = 0; j < p.get(i).getArrival_time(); j+=processing_time) {line += " ";}
-            for (double j = 0; j < p.get(i).getDuration(); j+=processing_time)
+            for (double j = 0; j < p.get(i).getArrival_time(); j+=time_lapse) {line += " ";}
+            for (double j = 0; j < p.get(i).getDuration(); j+=time_lapse)
             {line += "-";}
             line+=">\n";
         }

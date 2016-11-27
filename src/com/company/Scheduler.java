@@ -8,8 +8,13 @@ import java.util.concurrent.BlockingQueue;
  */
 public abstract class Scheduler implements Runnable
 {
-    public static final double processing_time=0.5; //De cuanto en cuanto se debe reducir el proceso
-    protected int pendingThreads;                   //Nos sirve para saber cuando acabamos de procesar todos
+    public static final double processing_time = 0.0005; //De cuanto en cuanto se debe reducir el proceso, dado en ms
+    public static final int time_multiplier = 1000;      //1000 = Segundos , 1 = ms
+
+    public static final double delta = processing_time*time_multiplier; //
+    public static final double sleeps = delta*time_multiplier;          //Usado para thread.sleep
+
+    int pendingThreads;                                 //Nos sirve para saber cuando acabamos de procesar todos
 
     protected BlockingQueue<Proc> readyQueue;       //Esta cubeta se le estan depositando y sacando procesos por multiples hilos
     protected Queue<Proc> finishedQueue;            //Aqui es donde pone los procesos el scheduler
