@@ -4,12 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
+
+import static com.company.Scheduler.processing_time;
 
 public class Main
 {
     private static final int PORT = 4444; //EN el que se comunica cliente servidor para imprimir datos
     private static final String HOST = "127.0.0.1"; //localhost
+
     private static final String file_path="src/com/company/procesos.txt";
     private static final String second_file_path="src/com/company/procesos1-temp.txt";
     private static List<Proc> waiting_procs;
@@ -18,42 +22,43 @@ public class Main
     public static void main(String[] args) throws InterruptedException, IOException
     {
 
-        setValues(file_path);       //waiting_procs ya estan arreglados por el tiempo en el que deben salir
-        drawGantt(waiting_procs);   //Los dibujamos
+        int choice = 0;         //0 = Prioridad; 1 = Round Robin
+        Scheduler scheduler;    //Aqui guardaremos el objeto scheduler
 
-        final BlockingQueue<Proc> priorityBlockingQueue_readyProcesses = new PriorityBlockingQueue<>(waiting_procs.size(),(Proc p1, Proc p2)-> (int)(
-                (p1.getPriority()!=p2.getPriority())
-                        ?(p1.getPriority()-p2.getPriority())
-                        :(p1.getDuration()-p2.getDuration()))); //Comparador
+        final BlockingQueue<Proc> readyProcesses; //Prioridad ocupa comparador especial; Robin solo un FIFO
+        setValues(file_path);                     //waiting_procs ya estan arreglados por el tiempo en el que deben salir
+        drawGantt(waiting_procs);                 //Dibujamos los procesos
 
-        PriorityScheduler prSc = new PriorityScheduler(waiting_procs.size(),priorityBlockingQueue_readyProcesses);
-        Thread Scheduler_Priority = new Thread(prSc); //Agregar round robin
-        Thread proc_launcher = new Thread(new WaitingToReadyProducer(waiting_procs,priorityBlockingQueue_readyProcesses));
-        Thread rs = new Thread(new ReportsServer(PORT));
-
-        rs.start();                 //Levantamos el servidor que imprime resultados
-        Scheduler_Priority.start(); //Levantamos el Planificador de prioridades
-        proc_launcher.start();      //Levantamos el hilo que dispara procesos
-
-        while ( prSc.getPendingThreads()>0)
+        switch (choice)
         {
-            Thread.sleep(1000);
-        }
+            case 0: //Priority
+                readyProcesses =  new PriorityBlockingQueue<>(waiting_procs.size(),(Proc p1, Proc p2)-> (int)((p1.getPriority()!=p2.getPriority()) ?(p1.getPriority()-p2.getPriority()) :(p1.getDuration()-p2.getDuration())));
+                scheduler = new PriorityScheduler(waiting_procs.size(),readyProcesses);
+                break;
 
-        String result = "";
-        double duracion = 0.0;
-        double globalWaiting = 0.0;
-        int totalProcs = 0;
-
-        for (Proc p:prSc.finishedQueue) //Cambiar la cubeta en caso de ser el otro
-        {
-            duracion+=p.getFinish_time()-p.getArrival_time();
-            result += p.getName()+" Tardo: "+duracion+"\tEn espera "+(duracion-p.getLength())+"|";
-            globalWaiting+= duracion-p.getLength();
-            totalProcs++;
+            default: //Aun no funciona, Round Robin
+                readyProcesses = new LinkedBlockingQueue<>(); //Una cubeta normal, la prioridad no se requiere
+                scheduler = new RoundRobinScheduler(quantum, waiting_procs.size(),readyProcesses);
+                break;
         }
-        result+="Duracion promedio "+globalWaiting/totalProcs+"s\n";
-        (new Thread(new ReportsClient(HOST,PORT,result))).start(); //Mandarle resultado al server, el los imprimira
+        
+        //Con esto instanciamos el hilo que servira los procesos
+        Thread scheduler_thread = new Thread(scheduler);
+        //Hilo que levantara procesos
+        Thread proc_launcher_thread = new Thread(new WaitingToReadyProducer(waiting_procs,readyProcesses));
+        //Este hilo esta escuchando a que le reporten resultados para imprimirlos
+        Thread report_server_thread = new Thread(new ReportsServer(PORT));
+
+        report_server_thread.start();                 //Levantamos el servidor que imprime resultados
+        scheduler_thread.start();                     //Levantamos el Planificador solicitado
+        proc_launcher_thread.start();                 //Levantamos el hilo que dispara procesos
+
+        while (  scheduler.hasPendingThreads() )      //Mientras no se acaben los procesos, esperar
+        {Thread.sleep(1000);}                         //Aqui ya podemos enviar un reporte
+
+        String report = scheduler.getReport();         //Obtenemos los resultados
+        //Este hilo es el cliente, lanza el reporte al servidor, el cual lo imprime
+        (new Thread(new ReportsClient(HOST,PORT,report))).start();
     }
 
     public static void drawGantt(List<Proc> p)
@@ -63,25 +68,17 @@ public class Main
         for (int i = 0; i < p.size() ; i++)
         {
             line+=p.get(i).getName()+" -> "+p.get(i).getPriority()+"\t|";
-            for (double j = 0; j < p.get(i).getArrival_time(); j+=0.5)
-            {
-                line += " ";
-            }
-            for (double j = 0; j < p.get(i).getDuration(); j+=0.5)
-            {
-                line += "-";
-            }
+            for (double j = 0; j < p.get(i).getArrival_time(); j+=processing_time) {line += " ";}
+            for (double j = 0; j < p.get(i).getDuration(); j+=processing_time)
+            {line += "-";}
             line+=">\n";
         }
         System.out.print(line);
     }
 
-
     private static boolean setValues(String p) //los lee del archivo
     {
-        //Por tiempos
-        waiting_procs = new ArrayList<>();
-
+        waiting_procs = new ArrayList<>(); //Por tiempos
         boolean firstLine = true;
         try (Scanner scanner = new Scanner(new File(p)))
         {
