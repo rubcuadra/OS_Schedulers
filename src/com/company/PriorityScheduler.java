@@ -17,7 +17,7 @@ public class PriorityScheduler extends Scheduler
     @Override
     public void run()
     {
-        System.out.println("Starting PriorityScheduler");
+        System.out.println("Starting Round Robin");
 
         Job top_waiting,temp; Job running=null;
         double current_time = 0;

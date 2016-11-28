@@ -12,9 +12,11 @@ public class WaitingToReadyProducer implements Runnable
 {
     protected BlockingQueue<Job> readyQueue;
     protected List<Job> waitingJobs;
+    protected boolean silent;
 
-    public WaitingToReadyProducer(List<Job> waitingJob, BlockingQueue<Job> readyQueue)
+    public WaitingToReadyProducer(List<Job> waitingJob, BlockingQueue<Job> readyQueue, boolean silent_launch)
     {
+        this.silent=silent_launch;
         this.waitingJobs = waitingJob;
         this.readyQueue = readyQueue;
     }
@@ -32,7 +34,7 @@ public class WaitingToReadyProducer implements Runnable
 
                 if (waitingJobs.get(0).getArrival_time()*time_multiplier <= time_past_in_mili) //Si el tiempo de llegada es menor o igual al tiempo actual, lanzarlo
                 {
-                    //System.out.println("|-> "+ waitingJobs.get(0) );
+                    if (!silent) System.out.println("|-> "+ waitingJobs.get(0) );
                     readyQueue.put(waitingJobs.remove(0));
                 }
             }

@@ -21,8 +21,9 @@ public class Main
 
     public static void main(String[] args) throws InterruptedException, IOException
     {
-        int choice = 1;         //0 = Prioridad; 1 = Round Robin
-        Scheduler scheduler;    //Aqui guardaremos el objeto scheduler
+        int choice = 0;                 //0 = Prioridad; 1 = Round Robin
+        Scheduler scheduler;            //Aqui guardaremos el objeto scheduler
+        boolean silent_launch=choice!=0;//Only on priority we print the launch time of threads
 
         final BlockingQueue<Job> readyProcesses; //Prioridad ocupa comparador especial; Robin solo un FIFO
         setValues(file_path);                     //waiting_jobs ya estan arreglados por el tiempo en el que deben salir
@@ -43,7 +44,7 @@ public class Main
         //Con esto instanciamos el hilo que servira los procesos
         Thread scheduler_thread = new Thread(scheduler);
         //Hilo que levantara procesos
-        Thread proc_launcher_thread = new Thread(new WaitingToReadyProducer(waiting_jobs,readyProcesses));
+        Thread proc_launcher_thread = new Thread(new WaitingToReadyProducer(waiting_jobs,readyProcesses,silent_launch));
         //Este hilo esta escuchando a que le reporten resultados para imprimirlos
         Thread report_server_thread = new Thread(new ReportsServer(PORT));
 
