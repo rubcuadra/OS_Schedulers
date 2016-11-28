@@ -1,5 +1,6 @@
 package com.company;
 
+import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 
@@ -16,8 +17,8 @@ public abstract class Scheduler implements Runnable
 
     int pendingThreads;                                 //Nos sirve para saber cuando acabamos de procesar todos
 
-    protected BlockingQueue<Proc> readyQueue;       //Esta cubeta se le estan depositando y sacando procesos por multiples hilos
-    protected Queue<Proc> finishedQueue;            //Aqui es donde pone los procesos el scheduler
+    protected BlockingQueue<Job> readyQueue;       //Esta cubeta se le estan depositando y sacando procesos por multiples hilos
+    protected Queue<Job> finishedQueue;            //Aqui es donde pone los procesos el scheduler
 
     public boolean hasPendingThreads()
     {
@@ -30,7 +31,7 @@ public abstract class Scheduler implements Runnable
         //Waiting    = Turnaround - duration
         String result = "";
         double duracion = 0.0,globalWaiting= 0.0;
-        for (Proc p:finishedQueue )
+        for (Job p:finishedQueue )
         {
             duracion+=p.getFinish_time()-p.getArrival_time();
             result += p.getName()+" Tardo: "+duracion+"\tEn espera "+(duracion-p.getLength())+"|"; //Se agrega un | por que un \n cortaba comunicacion cliente-servidor
@@ -38,6 +39,13 @@ public abstract class Scheduler implements Runnable
         }
         result+="Duracion promedio "+globalWaiting/finishedQueue.size()+"s\n";
         return result;
+    }
+
+    protected void printBuiltString(char c, int n)
+    {
+        char[] arr = new char[n];
+        Arrays.fill(arr, c);
+        System.out.print(new String(arr));
     }
 
 }

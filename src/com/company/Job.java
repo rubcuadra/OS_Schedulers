@@ -3,13 +3,13 @@ package com.company;
 /**
  * Created by Ruben on 11/18/16.
  */
-public class Proc implements Comparable<Proc>
+public class Job implements Comparable<Job>
 {
     private String name;
     //Agregar una timestamp de cuando se realiza un context switch?
     private double arrival_time,priority,duration,finish_time,length;
 
-    Proc(String[] file_line)
+    Job(String[] file_line)
     {
         name = file_line[0];
         arrival_time = Double.parseDouble(file_line[1]);
@@ -58,7 +58,7 @@ public class Proc implements Comparable<Proc>
 
 
     @Override
-    public int compareTo(Proc o)
+    public int compareTo(Job o)
     {
         return (int)(this.arrival_time-o.arrival_time);
     }

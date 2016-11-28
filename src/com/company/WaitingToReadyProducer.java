@@ -10,12 +10,12 @@ import static com.company.Scheduler.time_multiplier;
  */
 public class WaitingToReadyProducer implements Runnable
 {
-    protected BlockingQueue<Proc> readyQueue;
-    protected List<Proc> waitingProcs;
+    protected BlockingQueue<Job> readyQueue;
+    protected List<Job> waitingJobs;
 
-    public WaitingToReadyProducer(List<Proc> waitingProc, BlockingQueue<Proc> readyQueue)
+    public WaitingToReadyProducer(List<Job> waitingJob, BlockingQueue<Job> readyQueue)
     {
-        this.waitingProcs = waitingProc;
+        this.waitingJobs = waitingJob;
         this.readyQueue = readyQueue;
     }
 
@@ -24,16 +24,16 @@ public class WaitingToReadyProducer implements Runnable
     {
         int start = (int) System.currentTimeMillis();  //Cada 1000 son 1 segundo
 
-        while (waitingProcs.size()!=0) //Almost true
+        while (waitingJobs.size()!=0) //Almost true
         {
             try
             {
                 double time_past_in_mili = (double)((int)System.currentTimeMillis()-start);
 
-                if (waitingProcs.get(0).getArrival_time()*time_multiplier <= time_past_in_mili) //Si el tiempo de llegada es menor o igual al tiempo actual, lanzarlo
+                if (waitingJobs.get(0).getArrival_time()*time_multiplier <= time_past_in_mili) //Si el tiempo de llegada es menor o igual al tiempo actual, lanzarlo
                 {
-                    System.out.println("|-> "+waitingProcs.get(0) );
-                    readyQueue.put(waitingProcs.remove(0));
+                    //System.out.println("|-> "+ waitingJobs.get(0) );
+                    readyQueue.put(waitingJobs.remove(0));
                 }
             }
             catch (InterruptedException e)

@@ -1,7 +1,6 @@
 package com.company;
 
 import java.util.LinkedList;
-import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -9,7 +8,7 @@ import java.util.concurrent.BlockingQueue;
  */
 public class PriorityScheduler extends Scheduler
 {
-    public PriorityScheduler(int totalThreads,BlockingQueue<Proc> queue)
+    public PriorityScheduler(int totalThreads,BlockingQueue<Job> queue)
     {
         this.pendingThreads = totalThreads;         //Con esto sabemos cuando debemos acabar
         this.readyQueue = queue;                    //Los que debemos procesar
@@ -18,7 +17,7 @@ public class PriorityScheduler extends Scheduler
     @Override
     public void run()
     {
-        Proc top_waiting,temp; Proc running=null;
+        Job top_waiting,temp; Job running=null;
         double current_time = 0;
 
         while ( (top_waiting=readyQueue.peek())!=null || pendingThreads >0)
